@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jaypark.sns.controller.request.UserJoinRequest;
 import com.jaypark.sns.controller.request.UserLoginRequest;
+import com.jaypark.sns.exception.ErrorCode;
 import com.jaypark.sns.exception.SnsApplicationException;
 import com.jaypark.sns.model.User;
 import com.jaypark.sns.service.UserService;
@@ -55,7 +56,7 @@ public class UserControllerTest {
 		String userName = "userName";
 		String password = "password";
 
-		when(userService.join(userName, password)).thenThrow(new SnsApplicationException());
+		when(userService.join(userName, password)).thenThrow(new SnsApplicationException(ErrorCode.DUPLICATED_USER_NAME,""));
 
 		mvc.perform(post("/api/v1/users/join")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -88,7 +89,7 @@ public class UserControllerTest {
 		String userName = "userName";
 		String password = "password";
 
-		when(userService.login(userName, password)).thenThrow(new SnsApplicationException());
+		when(userService.login(userName, password)).thenThrow(new SnsApplicationException(ErrorCode.DUPLICATED_USER_NAME , ""));
 
 		mvc.perform(post("/api/v1/users/login")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -104,7 +105,7 @@ public class UserControllerTest {
 		String userName = "userName";
 		String password = "password";
 
-		when(userService.login(userName, password)).thenThrow(new SnsApplicationException());
+		when(userService.login(userName, password)).thenThrow(new SnsApplicationException(ErrorCode.DUPLICATED_USER_NAME,""));
 
 		mvc.perform(post("/api/v1/users/login")
 				.contentType(MediaType.APPLICATION_JSON)

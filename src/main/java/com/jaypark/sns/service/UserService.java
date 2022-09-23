@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.jaypark.sns.exception.ErrorCode;
 import com.jaypark.sns.exception.SnsApplicationException;
 import com.jaypark.sns.model.User;
 import com.jaypark.sns.model.entity.UserEntity;
@@ -21,18 +22,22 @@ public class UserService {
 
 	//TODO : implement
 	public User join(String userName, String password) {
-		Optional<UserEntity> userEntity = userEntityRepository.findByUserName(userName);
-		userEntityRepository.save(new UserEntity());
-		return new User();
+		userEntityRepository.findByUserName(userName).ifPresent(user ->{
+			throw new SnsApplicationException(ErrorCode.DUPLICATED_USER_NAME,String.format("%s is duplicated", userName));
+		});
+
+		UserEntity userEntity = userEntityRepository.save(UserEntity.of(userName, password));
+
+		return User.fromEntity(userEntity);
 	}
 
 	//TODO : implement
 	public String login(String userName, String password) {
 		// 회원가입여부 체크
-		UserEntity userEntity = userEntityRepository.findByUserName(userName).orElseThrow(SnsApplicationException::new);
+		UserEntity userEntity = userEntityRepository.findByUserName(userName).orElseThrow(() -> new SnsApplicationException(ErrorCode.DUPLICATED_USER_NAME,""));
 		// 비밀번호 체크
 		if (userEntity.getPassword().equals(password)) {
-			throw new SnsApplicationException();
+			throw new SnsApplicationException( ErrorCode.DUPLICATED_USER_NAME,"");
 		}
 		// 토큰 생성
 		return "";
