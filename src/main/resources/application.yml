@@ -15,3 +15,8 @@ spring:
     password: 3406ae43e585c30a1d793c30a0d267c6bdd83f0f405c3c0536722f7fae14037c
     platform: postgres
 
+jwt:
+  secret-key : jaypark.sns-application-2022.secret_key
+#  30day
+  token.expired-time-ms : 259200000
+

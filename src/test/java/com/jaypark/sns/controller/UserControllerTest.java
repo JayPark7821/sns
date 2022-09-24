@@ -34,6 +34,7 @@ public class UserControllerTest {
 	@MockBean
 	UserService userService;
 
+
 	@Test
 	void 회원가입() throws Exception{
 
@@ -89,7 +90,7 @@ public class UserControllerTest {
 		String userName = "userName";
 		String password = "password";
 
-		when(userService.login(userName, password)).thenThrow(new SnsApplicationException(ErrorCode.DUPLICATED_USER_NAME , ""));
+		when(userService.login(userName, password)).thenThrow(new SnsApplicationException(ErrorCode.USER_NOT_FOUND));
 
 		mvc.perform(post("/api/v1/users/login")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -105,7 +106,7 @@ public class UserControllerTest {
 		String userName = "userName";
 		String password = "password";
 
-		when(userService.login(userName, password)).thenThrow(new SnsApplicationException(ErrorCode.DUPLICATED_USER_NAME,""));
+		when(userService.login(userName, password)).thenThrow(new SnsApplicationException(ErrorCode.INVALID_PASSWORD));
 
 		mvc.perform(post("/api/v1/users/login")
 				.contentType(MediaType.APPLICATION_JSON)

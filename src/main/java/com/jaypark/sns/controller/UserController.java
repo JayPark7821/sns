@@ -6,8 +6,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jaypark.sns.controller.request.UserJoinRequest;
+import com.jaypark.sns.controller.request.UserLoginRequest;
 import com.jaypark.sns.controller.response.Response;
 import com.jaypark.sns.controller.response.UserJoinResponse;
+import com.jaypark.sns.controller.response.UserLoginResponse;
 import com.jaypark.sns.model.User;
 import com.jaypark.sns.service.UserService;
 
@@ -25,5 +27,12 @@ public class UserController {
 	public Response<UserJoinResponse> join(@RequestBody UserJoinRequest request) {
 		User user = userService.join(request.getUserName(), request.getPassword());
 		return Response.success(UserJoinResponse.fromUser(user));
+	}
+
+	//TODO : implement
+	@PostMapping("/login")
+	public Response<UserLoginResponse> login(@RequestBody UserLoginRequest request) {
+		String token = userService.login(request.getUserName(), request.getPassword());
+		return Response.success(new UserLoginResponse(token));
 	}
 }
