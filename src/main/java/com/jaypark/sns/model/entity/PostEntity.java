@@ -1,6 +1,5 @@
 package com.jaypark.sns.model.entity;
 
-import java.lang.annotation.Target;
 import java.sql.Timestamp;
 import java.time.Instant;
 
@@ -11,6 +10,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
@@ -24,27 +25,26 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "\"user\"")
+@Table(name = "\"post\"")
 @Getter
 @Setter
-@SQLDelete(sql = "UPDATE \"user\" SET deleted_at = NOW() where id=?")
+@SQLDelete(sql = "UPDATE \"post\" SET deleted_at = NOW() where id=?")
 @Where(clause = "deleted_at is NULL")
-public class UserEntity {
+public class PostEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "user_id")
 	private Long id;
 
-	@Column(name = "user_name")
-	private String userName;
+	@Column(name = "title")
+	private String title;
 
-	@Column(name = "password")
-	private String password;
+	@Column(name = "body", columnDefinition = "TEXT")
+	private String body;
 
-	@Column(name = "role")
-	@Enumerated(EnumType.STRING)
-	private UserRole role = UserRole.USER;
+	@ManyToOne
+	@JoinColumn(name = "user_id")
+	private UserEntity user;
 
 	@Column(name = "register_at")
 	private Timestamp registerAt;
@@ -63,14 +63,6 @@ public class UserEntity {
 	@PreUpdate
 	void updatedAt() {
 		this.updatedAt = Timestamp.from(Instant.now());
-	}
-
-	public static UserEntity of(String userName, String password) {
-		UserEntity userEntity = new UserEntity();
-		userEntity.setUserName(userName);
-		userEntity.setPassword(password);
-
-		return userEntity;
 	}
 
 }
