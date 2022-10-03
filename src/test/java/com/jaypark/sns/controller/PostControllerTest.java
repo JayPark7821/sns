@@ -21,6 +21,8 @@ import com.jaypark.sns.controller.request.PostModifyRequest;
 import com.jaypark.sns.controller.request.UserJoinRequest;
 import com.jaypark.sns.exception.ErrorCode;
 import com.jaypark.sns.exception.SnsApplicationException;
+import com.jaypark.sns.fixture.PostEntityFixture;
+import com.jaypark.sns.model.Post;
 import com.jaypark.sns.service.PostService;
 
 @SpringBootTest
@@ -68,6 +70,10 @@ public class PostControllerTest {
 		String title = "title";
 		String body = "body";
 
+		when(postService.modify(eq(title), eq(body), any(), any())).thenReturn(
+			Post.fromEntity(PostEntityFixture.get("userName", 1L, 1L)));
+
+
 		mvc.perform(put("/api/v1/posts/1")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsBytes(new PostModifyRequest(title, body))))
@@ -78,7 +84,7 @@ public class PostControllerTest {
 
 	@Test
 	@WithAnonymousUser
-	void 포스트수정시_로그인하징낳은경우() throws Exception{
+	void 포스트수정시_로그인하지않은경우() throws Exception{
 		String title = "title";
 		String body = "body";
 
@@ -86,7 +92,7 @@ public class PostControllerTest {
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsBytes(new PostModifyRequest(title, body))))
 			.andDo(print())
-			.andExpect(status().isOk());
+			.andExpect(status().isUnauthorized());
 	}
 
 
