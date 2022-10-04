@@ -130,5 +130,91 @@ public class PostControllerTest {
 	}
 
 
+	@Test
+	@WithMockUser
+	void 포스트삭제() throws Exception{
+		mvc.perform(delete("/api/v1/posts/1")
+				.contentType(MediaType.APPLICATION_JSON)
+			).andDo(print())
+			.andExpect(status().isOk());
+	}
+
+
+	@Test
+	@WithAnonymousUser
+	void 포스트삭제_로그인하지_않은경우() throws Exception{
+
+		mvc.perform(delete("/api/v1/posts/1")
+				.contentType(MediaType.APPLICATION_JSON)
+			).andDo(print())
+			.andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	@WithAnonymousUser
+	void 포스트삭제시_작성자와_삭제요청자가_다른경우() throws Exception{
+		// mocking
+		doThrow(new SnsApplicationException(ErrorCode.INVALID_PERMISSION)).when(postService).delete(any(), any());
+
+		mvc.perform(delete("/api/v1/posts/1")
+				.contentType(MediaType.APPLICATION_JSON)
+			).andDo(print())
+			.andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	@WithMockUser
+	void 포스트삭제시_삭제하려는_포스트가_존재하지_않을_경우우() throws Exception{
+		// mocking
+		doThrow(new SnsApplicationException(ErrorCode.POST_NOT_FOUND)).when(postService).delete(any(), any());
+
+		mvc.perform(delete("/api/v1/posts/1")
+				.contentType(MediaType.APPLICATION_JSON)
+			).andDo(print())
+			.andExpect(status().isNotFound());
+	}
+
+
+	@Test
+	@WithMockUser
+	void 피드목록() throws Exception{
+		mvc.perform(get("/api/v1/posts")
+				.contentType(MediaType.APPLICATION_JSON)
+			).andDo(print())
+			.andExpect(status().isOk());
+	}
+
+
+	@Test
+	@WithAnonymousUser
+	void 피드목록요청시_로그인하지_않은경우() throws Exception{
+
+		mvc.perform(get("/api/v1/posts")
+				.contentType(MediaType.APPLICATION_JSON)
+			).andDo(print())
+			.andExpect(status().isUnauthorized());
+	}
+
+
+	@Test
+	@WithMockUser
+	void 내피드목록() throws Exception{
+		mvc.perform(get("/api/v1/posts/my")
+				.contentType(MediaType.APPLICATION_JSON)
+			).andDo(print())
+			.andExpect(status().isOk());
+	}
+
+
+	@Test
+	@WithAnonymousUser
+	void 내피드목록요청시_로그인하지_않은경우() throws Exception{
+
+		mvc.perform(get("/api/v1/posts/my")
+				.contentType(MediaType.APPLICATION_JSON)
+			).andDo(print())
+			.andExpect(status().isUnauthorized());
+	}
+
 
 }
