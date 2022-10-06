@@ -1,5 +1,7 @@
 package com.jaypark.sns.controller;
 
+import com.jaypark.sns.controller.request.PostCommentRequest;
+import com.jaypark.sns.controller.response.CommentResponse;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -70,4 +72,18 @@ public class PostController {
 	public Response<Integer> likeCount(@PathVariable("postId") Long postId, Authentication authentication) {
 		return Response.success(postService.listCount(postId));
 	}
+
+
+	@PostMapping("/{postId}/comments")
+	public Response<Void> comment(@PathVariable("postId") Long postId, @RequestBody PostCommentRequest request, Authentication authentication) {
+		postService.comment(postId, authentication.getName(), request.getComment());
+		return Response.success();
+	}
+
+	@GetMapping("/{postId}/comments")
+	public Response<Page<CommentResponse>> commentList(@PathVariable("postId") Long postId, Pageable pageable, Authentication authentication) {
+		return Response.success(postService.getComment(postId,pageable).map(CommentResponse::fromComment));
+	}
+
+
 }

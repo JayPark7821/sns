@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import com.jaypark.sns.controller.request.PostCommentRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -19,7 +20,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jaypark.sns.controller.request.PostCreateRequest;
 import com.jaypark.sns.controller.request.PostModifyRequest;
-import com.jaypark.sns.controller.request.UserJoinRequest;
 import com.jaypark.sns.exception.ErrorCode;
 import com.jaypark.sns.exception.SnsApplicationException;
 import com.jaypark.sns.fixture.PostEntityFixture;
@@ -250,6 +250,43 @@ public class PostControllerTest {
 
 		mvc.perform(post("/api/v1/posts/1/likes")
 				.contentType(MediaType.APPLICATION_JSON)
+			).andDo(print())
+			.andExpect(status().isNotFound());
+	}
+
+
+
+	@Test
+	@WithMockUser
+	void 댓글기능() throws Exception{
+
+		mvc.perform(post("/api/v1/posts/1/comments")
+				.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsBytes(new PostCommentRequest("comment")))
+			).andDo(print())
+			.andExpect(status().isOk());
+	}
+
+
+	@Test
+	@WithAnonymousUser
+	void 댓글작성시_로그인하지_않은경우() throws Exception{
+		mvc.perform(post("/api/v1/posts/1/comments")
+				.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsBytes(new PostCommentRequest("comment")))
+			).andDo(print())
+			.andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	@WithMockUser
+	void 댓글작성시_게시물이_없는_경우() throws Exception{
+
+		doThrow(new SnsApplicationException(ErrorCode.POST_NOT_FOUND)).when(postService).comment(any(), any(), any());
+
+		mvc.perform(post("/api/v1/posts/1/comments")
+				.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsBytes(new PostCommentRequest("comment")))
 			).andDo(print())
 			.andExpect(status().isNotFound());
 	}
