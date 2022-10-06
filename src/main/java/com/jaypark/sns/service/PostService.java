@@ -1,5 +1,7 @@
 package com.jaypark.sns.service;
 
+import com.jaypark.sns.model.entity.LikeEntity;
+import com.jaypark.sns.repository.LikeEntityRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -15,12 +17,16 @@ import com.jaypark.sns.repository.UserEntityRepository;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class PostService {
 
 	private final PostEntityRepository postEntityRepository;
 	private final UserEntityRepository userEntityRepository;
+	private final LikeEntityRepository likeEntityRepository;
 
 	@Transactional
 	public void create(String title, String body, String userName) {
@@ -79,5 +85,32 @@ public class PostService {
 				() -> new SnsApplicationException(ErrorCode.USER_NOT_FOUND, String.format("%s not founded", userName)));
 
 		return postEntityRepository.findAllByUser(user, pageable).map(Post::fromEntity);
+	}
+
+	@Transactional
+	public void like(Long postId, String userName) {
+		UserEntity user = userEntityRepository.findByUserName(userName)
+				.orElseThrow(
+						() -> new SnsApplicationException(ErrorCode.USER_NOT_FOUND, String.format("%s not founded", userName)));
+
+		PostEntity post = postEntityRepository.findById(postId)
+				.orElseThrow(
+						() -> new SnsApplicationException(ErrorCode.POST_NOT_FOUND, String.format("%s not founded", postId)));
+
+		// check liked
+		likeEntityRepository.findByUserAndPost(user, post).ifPresent(l -> {
+			throw new SnsApplicationException(ErrorCode.ALREADY_LIKED, String.format("userName %s already like post %d", userName, postId));
+		});
+		// liked save
+		likeEntityRepository.save(LikeEntity.of(user, post));
+
+	}
+
+	public int listCount(Long postId) {
+		PostEntity post = postEntityRepository.findById(postId)
+				.orElseThrow(
+						() -> new SnsApplicationException(ErrorCode.POST_NOT_FOUND, String.format("%s not founded", postId)));
+		//count like
+		return likeEntityRepository.countByPost(post);
 	}
 }

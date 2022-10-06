@@ -38,7 +38,7 @@ public class PostController {
 
 	@PutMapping("/{postId}")
 	public Response<PostResponse> modify(@PathVariable("postId") Long postId, @RequestBody PostModifyRequest request,
-		Authentication authentication) {
+										 Authentication authentication) {
 		Post post = postService.modify(request.getTitle(), request.getBody(), authentication.getName(), postId);
 		return Response.success(PostResponse.fromPost(post));
 
@@ -58,5 +58,16 @@ public class PostController {
 	@GetMapping("/my")
 	public Response<Page<PostResponse>> myList(Pageable pageable, Authentication authentication) {
 		return Response.success(postService.myList(authentication.getName(), pageable).map(PostResponse::fromPost));
+	}
+
+	@PostMapping("/{postId}/likes")
+	public Response<Void> like(@PathVariable("postId") Long postId, Authentication authentication) {
+		postService.like(postId, authentication.getName());
+		return Response.success();
+	}
+
+	@GetMapping("/{postId}/likes")
+	public Response<Integer> likeCount(@PathVariable("postId") Long postId, Authentication authentication) {
+		return Response.success(postService.listCount(postId));
 	}
 }
