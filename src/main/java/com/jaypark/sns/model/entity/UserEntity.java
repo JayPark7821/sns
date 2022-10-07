@@ -1,6 +1,5 @@
 package com.jaypark.sns.model.entity;
 
-import java.lang.annotation.Target;
 import java.sql.Timestamp;
 import java.time.Instant;
 
@@ -53,7 +52,7 @@ public class UserEntity {
 	private Timestamp updatedAt;
 
 	@Column(name = "deleted_at")
-	private Timestamp DeletedAt;
+	private Timestamp deletedAt;
 
 	@PrePersist
 	void registerdAt() {

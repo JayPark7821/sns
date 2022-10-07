@@ -1,5 +1,7 @@
 package com.jaypark.sns.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,8 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.jaypark.sns.exception.ErrorCode;
 import com.jaypark.sns.exception.SnsApplicationException;
+import com.jaypark.sns.model.Alarm;
 import com.jaypark.sns.model.User;
+import com.jaypark.sns.model.entity.AlarmEntity;
 import com.jaypark.sns.model.entity.UserEntity;
+import com.jaypark.sns.repository.AlarmEntityRepository;
 import com.jaypark.sns.repository.UserEntityRepository;
 import com.jaypark.sns.utils.JwtTokenUtils;
 
@@ -23,6 +28,7 @@ public class UserService {
 
 	private final UserEntityRepository userEntityRepository;
 	private final BCryptPasswordEncoder encoder;
+	private final AlarmEntityRepository alarmEntityRepository;
 
 	@Value("${jwt.secret-key}")
 	private String secretKey;
@@ -64,7 +70,7 @@ public class UserService {
 	}
 
 	// TODO : alarm return
-	public Page<Void> alarmList(String userName, Pageable pageable) {
-		return Page.empty();
+	public Page<Alarm> alarmList(Long userId, Pageable pageable) {
+		return alarmEntityRepository.findAllByUserId(userId, pageable).map(Alarm::fromEntity);
 	}
 }

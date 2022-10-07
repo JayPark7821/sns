@@ -1,8 +1,12 @@
 package com.jaypark.sns.service;
 
+import com.jaypark.sns.model.AlarmArgs;
+import com.jaypark.sns.model.AlarmType;
 import com.jaypark.sns.model.Comment;
+import com.jaypark.sns.model.entity.AlarmEntity;
 import com.jaypark.sns.model.entity.CommentEntity;
 import com.jaypark.sns.model.entity.LikeEntity;
+import com.jaypark.sns.repository.AlarmEntityRepository;
 import com.jaypark.sns.repository.CommentEntityRepository;
 import com.jaypark.sns.repository.LikeEntityRepository;
 import org.springframework.data.domain.Page;
@@ -28,6 +32,7 @@ public class PostService {
 	private final UserEntityRepository userEntityRepository;
 	private final LikeEntityRepository likeEntityRepository;
 	private final CommentEntityRepository commentEntityRepository;
+	private final AlarmEntityRepository alarmEntityRepository;
 
 
 	@Transactional
@@ -60,7 +65,8 @@ public class PostService {
 			throw new SnsApplicationException(ErrorCode.INVALID_PERMISSION,
 				String.format("%s has no permission with %s", userName, postId));
 		}
-
+		likeEntityRepository.deleteAllByPost(postEntity);
+		commentEntityRepository.deleteAllByPost(postEntity);
 		postEntityRepository.delete(postEntity);
 
 	}
@@ -87,9 +93,12 @@ public class PostService {
 		// liked save
 		likeEntityRepository.save(LikeEntity.of(user, post));
 
+		alarmEntityRepository.save(
+			AlarmEntity.of(post.getUser(), AlarmType.NEW_LIKE_ON_POST, new AlarmArgs(user.getId(), postId)));
+
 	}
 
-	public int listCount(Long postId) {
+	public long listCount(Long postId) {
 		PostEntity post = getPostOrException(postId);
 		//count like
 		return likeEntityRepository.countByPost(post);
@@ -102,6 +111,9 @@ public class PostService {
 
 		//comment save
 		commentEntityRepository.save(CommentEntity.of(user, post, comment));
+
+		alarmEntityRepository.save(
+			AlarmEntity.of(post.getUser(), AlarmType.NEW_COMMENT_ON_POST, new AlarmArgs(user.getId(), postId)));
 
 	}
 

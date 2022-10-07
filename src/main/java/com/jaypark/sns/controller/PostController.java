@@ -69,7 +69,7 @@ public class PostController {
 	}
 
 	@GetMapping("/{postId}/likes")
-	public Response<Integer> likeCount(@PathVariable("postId") Long postId, Authentication authentication) {
+	public Response<Long> likeCount(@PathVariable("postId") Long postId, Authentication authentication) {
 		return Response.success(postService.listCount(postId));
 	}
 

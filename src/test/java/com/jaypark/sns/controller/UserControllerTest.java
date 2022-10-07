@@ -123,7 +123,7 @@ public class UserControllerTest {
 	@WithMockUser
 	void 알람기능() throws Exception {
 		when(userService.alarmList(any(), any())).thenReturn(Page.empty());
-		mvc.perform(get("/api/v1/users/alaram")
+		mvc.perform(get("/api/v1/users/alarm")
 				.contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
 				.andExpect(status().isOk());

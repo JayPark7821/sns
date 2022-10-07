@@ -5,9 +5,13 @@ import java.time.Instant;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
@@ -15,32 +19,42 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.Where;
+
+import com.jaypark.sns.model.AlarmArgs;
+import com.jaypark.sns.model.AlarmType;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "\"post\"")
+@Table(name = "\"alarm\"", indexes = {
+	@Index(name = "user_id_idx", columnList = "user_id")
+})
 @Getter
 @Setter
-@SQLDelete(sql = "UPDATE \"post\" SET deleted_at = NOW() where id=?")
+@TypeDef(name = "jsonb", typeClass= JsonBinaryType.class)
+@SQLDelete(sql = "UPDATE \"alarm\" SET deleted_at = NOW() where id=?")
 @Where(clause = "deleted_at is NULL")
-public class PostEntity {
+public class AlarmEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(name = "title")
-	private String title;
-
-	@Column(name = "body", columnDefinition = "TEXT")
-	private String body;
-
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	private UserEntity user;
+
+	@Enumerated(EnumType.STRING)
+	private AlarmType alarmType;
+
+	@Type(type = "jsonb")
+	@Column(columnDefinition = "json")
+	private AlarmArgs args;
 
 	@Column(name = "register_at")
 	private Timestamp registerAt;
@@ -49,7 +63,7 @@ public class PostEntity {
 	private Timestamp updatedAt;
 
 	@Column(name = "deleted_at")
-	private Timestamp deletedAt;
+	private Timestamp DeletedAt;
 
 	@PrePersist
 	void registerdAt() {
@@ -61,10 +75,10 @@ public class PostEntity {
 		this.updatedAt = Timestamp.from(Instant.now());
 	}
 
-	public static PostEntity of(String title, String body, UserEntity userEntity) {
-		PostEntity entity = new PostEntity();
-		entity.setTitle(title);
-		entity.setBody(body);
+	public static AlarmEntity of(UserEntity userEntity, AlarmType alarmType, AlarmArgs alarmArgs) {
+		AlarmEntity entity = new AlarmEntity();
+		entity.setAlarmType(alarmType);
+		entity.setArgs(alarmArgs);
 		entity.setUser(userEntity);
 
 		return entity;

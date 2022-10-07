@@ -36,7 +36,7 @@ public class LikeEntity {
 	private Timestamp updatedAt;
 
 	@Column(name = "deleted_at")
-	private Timestamp DeletedAt;
+	private Timestamp deletedAt;
 
 	@PrePersist
 	void registerdAt() {

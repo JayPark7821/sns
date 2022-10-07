@@ -1,7 +1,7 @@
 package com.jaypark.sns.model;
 
 import com.jaypark.sns.model.entity.CommentEntity;
-import com.jaypark.sns.model.entity.PostEntity;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
