@@ -33,6 +33,7 @@ public class PostService {
 	private final LikeEntityRepository likeEntityRepository;
 	private final CommentEntityRepository commentEntityRepository;
 	private final AlarmEntityRepository alarmEntityRepository;
+	private final AlarmService alarmService;
 
 
 	@Transactional
@@ -93,9 +94,10 @@ public class PostService {
 		// liked save
 		likeEntityRepository.save(LikeEntity.of(user, post));
 
-		alarmEntityRepository.save(
+		AlarmEntity alarmEntity = alarmEntityRepository.save(
 			AlarmEntity.of(post.getUser(), AlarmType.NEW_LIKE_ON_POST, new AlarmArgs(user.getId(), postId)));
 
+		alarmService.send(alarmEntity.getId(), post.getUser().getId());
 	}
 
 	public long listCount(Long postId) {
@@ -112,8 +114,9 @@ public class PostService {
 		//comment save
 		commentEntityRepository.save(CommentEntity.of(user, post, comment));
 
-		alarmEntityRepository.save(
+		AlarmEntity alarmEntity = alarmEntityRepository.save(
 			AlarmEntity.of(post.getUser(), AlarmType.NEW_COMMENT_ON_POST, new AlarmArgs(user.getId(), postId)));
+		alarmService.send(alarmEntity.getId(), post.getUser().getId());
 
 	}
 
