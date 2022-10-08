@@ -14,9 +14,12 @@ spring:
     username: tmxrdkrhqqempi
     password: 67450372a352df96b947edd683b4dbb8bc465922f091968ce3bae657290cde7f
     platform: postgres
+  redis:
+    port: 6379
+    password: admin12#$12#$
+    host: 192.168.0.2
 
 jwt:
   secret-key : jaypark.sns-application-2022.secret_key
 #  30day
   token.expired-time-ms : 259200000
-
